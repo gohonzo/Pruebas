@@ -19,7 +19,11 @@ jobs:
       - name: Restore project
         run: |
           mkdir game
-          base64 -d starloom_ci.tar.gz.b64 | tar -xz -C game
+          cat bundle/chunk_* > starloom_ci.rebuilt.b64
+          echo "ce7eec9013e978c443f2016036fb0b92159869766012623634fa7bfccb0fe38c  starloom_ci.rebuilt.b64" | sha256sum -c -
+          base64 -d starloom_ci.rebuilt.b64 > starloom_ci.tar.gz
+          echo "f8957ef823eea47e20252bdf53f5d7b5c0ce2346b02e7bef54f40a3685bc7ba4  starloom_ci.tar.gz" | sha256sum -c -
+          tar -xzf starloom_ci.tar.gz -C game
           cd game
           python3 tools/generate_audio.py
           python3 tools/validate_project.py
