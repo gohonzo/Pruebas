@@ -1,0 +1,54 @@
+name: Build STARLOOM
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    container:
+      image: barichello/godot-ci:4.7.2
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore project
+        run: |
+          mkdir game
+          base64 -d starloom_ci.tar.gz.b64 | tar -xz -C game
+          cd game
+          python3 tools/generate_audio.py
+          python3 tools/validate_project.py
+          python3 tools/simulate_economy.py
+
+      - name: Godot parse/import smoke test
+        working-directory: game
+        run: godot --headless --editor --quit --verbose
+
+      - name: Build APK
+        working-directory: game
+        run: |
+          mkdir -p build/android
+          godot --headless --export-debug "Android" build/android/STARLOOM.apk
+
+      - name: Build Web
+        working-directory: game
+        run: |
+          mkdir -p build/web
+          godot --headless --export-release "Web" build/web/index.html
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: STARLOOM-Android
+          path: game/build/android/STARLOOM.apk
+
+      - name: Upload Web
+        uses: actions/upload-artifact@v4
+        with:
+          name: STARLOOM-Web
+          path: game/build/web
