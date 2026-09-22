@@ -28,6 +28,7 @@ jobs:
           tar -xzf starloom_ci.tar.gz -C game
           printf '\n[debug]\ngdscript/warnings/inference_on_variant=0\n' >> game/project.godot
           sed -i '1c[gd_resource type="AudioBusLayout" format=3]' game/default_bus_layout.tres
+          sed -i 's/draw_circle(c,r,bg_to_core(pal\[0\], pal\[1\])))/draw_circle(c,r,bg_to_core(pal[0], pal[1]))/' game/scripts/ui/loom_view.gd
           cat >> game/default_bus_layout.tres <<'BUS'
           bus/1/name = &"Music"
           bus/1/solo = false
