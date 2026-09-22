@@ -29,6 +29,9 @@ jobs:
           printf '\n[debug]\ngdscript/warnings/inference_on_variant=0\n' >> game/project.godot
           sed -i '1c[gd_resource type="AudioBusLayout" format=3]' game/default_bus_layout.tres
           sed -i 's/draw_circle(c,r,bg_to_core(pal\[0\], pal\[1\])))/draw_circle(c,r,bg_to_core(pal[0], pal[1]))/' game/scripts/ui/loom_view.gd
+          sed -i 's/var count := 6 + min(5, game.zone)/var count: int = 6 + min(5, int(game.zone))/' game/scripts/ui/loom_view.gd
+          sed -i 's/var a := TAU \* i \/ count + game.pulse_time \* (0.045 if i % 2 == 0 else -0.035)/var a: float = TAU * float(i) \/ float(count) + float(game.pulse_time) * (0.045 if i % 2 == 0 else -0.035)/' game/scripts/ui/loom_view.gd
+          sed -i 's/var radius := 60.0 + 126.0 \* abs(phase - .5) \* 2.0/var radius: float = 60.0 + 126.0 * absf(float(phase) - .5) * 2.0/' game/scripts/ui/loom_view.gd
           cat >> game/default_bus_layout.tres <<'BUS'
           bus/1/name = &"Music"
           bus/1/solo = false
