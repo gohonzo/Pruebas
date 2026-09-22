@@ -18,6 +18,8 @@ jobs:
 
       - name: Restore project
         run: |
+          apt-get update -qq
+          apt-get install -y -qq python3
           mkdir game
           cat bundle/chunk_* > starloom_ci.rebuilt.b64
           echo "ce7eec9013e978c443f2016036fb0b92159869766012623634fa7bfccb0fe38c  starloom_ci.rebuilt.b64" | sha256sum -c -
