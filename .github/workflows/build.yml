@@ -51,6 +51,13 @@ jobs:
         working-directory: game
         run: HOME=/root godot --headless --editor --quit --verbose
 
+      - name: Check GDScript entrypoints
+        working-directory: game
+        run: |
+          HOME=/root godot --headless --script scripts/ui/loom_view.gd --check-only
+          HOME=/root godot --headless --script scripts/ui/game_ui.gd --check-only
+          HOME=/root godot --headless --script scripts/main.gd --check-only
+
       - name: Build APK
         working-directory: game
         run: |
