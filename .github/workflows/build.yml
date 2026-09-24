@@ -19,7 +19,7 @@ jobs:
       - name: Restore project
         run: |
           apt-get update -qq
-          apt-get install -y -qq python3 fontconfig
+          apt-get install -y -qq python3
           mkdir game
           cat bundle/chunk_* > starloom_ci.rebuilt.b64
           echo "ce7eec9013e978c443f2016036fb0b92159869766012623634fa7bfccb0fe38c  starloom_ci.rebuilt.b64" | sha256sum -c -
@@ -27,18 +27,6 @@ jobs:
           echo "f8957ef823eea47e20252bdf53f5d7b5c0ce2346b02e7bef54f40a3685bc7ba4  starloom_ci.tar.gz" | sha256sum -c -
           tar -xzf starloom_ci.tar.gz -C game
           printf '\n[debug]\ngdscript/warnings/inference_on_variant=0\n' >> game/project.godot
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path("game/project.godot")
-          s = p.read_text(encoding="utf-8")
-          key = "textures/vram_compression/import_etc2_astc=true"
-          if key not in s:
-              if "[rendering]" in s:
-                  s = s.replace("[rendering]", "[rendering]\n\n" + key, 1)
-              else:
-                  s += "\n[rendering]\n\n" + key + "\n"
-          p.write_text(s, encoding="utf-8")
-          PY
           sed -i '1c[gd_resource type="AudioBusLayout" format=3]' game/default_bus_layout.tres
           sed -i 's/draw_circle(c,r,bg_to_core(pal\[0\], pal\[1\])))/draw_circle(c,r,bg_to_core(pal[0], pal[1]))/' game/scripts/ui/loom_view.gd
           sed -i 's/var count := 6 + min(5, game.zone)/var count: int = 6 + min(5, int(game.zone))/' game/scripts/ui/loom_view.gd
@@ -97,33 +85,3 @@ jobs:
         with:
           name: STARLOOM-Web
           path: game/build/web
-
-  deploy_pages:
-    name: Deploy STARLOOM to GitHub Pages
-    needs: build
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Download Web artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: STARLOOM-Web
-          path: ./site
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./site
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
